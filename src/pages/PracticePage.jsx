@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
 import PageShell from '../components/PageShell';
+import PostPracticeCheckIn from '../components/PostPracticeCheckIn';
 
 function AnimatedBackground({ theme }) {
   const canvasRef = useRef(null);
@@ -75,9 +76,11 @@ function AnimatedBackground({ theme }) {
 }
 
 function PracticeView({ affirmation, theme }) {
+  const { saveAffirmation } = useApp();
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
+  const [showCheckIn, setShowCheckIn] = useState(false);
   const timerRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -96,8 +99,26 @@ function PracticeView({ affirmation, theme }) {
   const resetPractice = useCallback(() => {
     setIsPaused(true);
     setActiveIndex(-1);
+    setShowCheckIn(false);
     if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
+
+  const handleCheckInComplete = useCallback((feeling) => {
+    const session = {
+      date: new Date().toISOString(),
+      feeling,
+    };
+    const updated = {
+      ...affirmation,
+      progress: {
+        ...affirmation.progress,
+        sessions: [...(affirmation.progress?.sessions || []), session],
+      },
+    };
+    saveAffirmation(updated);
+    setShowCheckIn(false);
+    resetPractice();
+  }, [affirmation, saveAffirmation, resetPractice]);
 
   // Auto-advance through statements
   useEffect(() => {
@@ -108,6 +129,7 @@ function PracticeView({ affirmation, theme }) {
         setActiveIndex(prev => prev + 1);
       } else {
         setIsPaused(true);
+        setShowCheckIn(true);
       }
     }, 5000);
 
@@ -140,6 +162,11 @@ function PracticeView({ affirmation, theme }) {
       }`}
     >
       <AnimatedBackground theme={theme} />
+
+      {/* Post-practice check-in */}
+      {showCheckIn && (
+        <PostPracticeCheckIn onComplete={handleCheckInComplete} />
+      )}
 
       {/* Top controls */}
       <div className="relative z-10 flex justify-between items-center px-4 pt-4">
