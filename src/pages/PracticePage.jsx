@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
 import PageShell from '../components/PageShell';
 import PostPracticeCheckIn from '../components/PostPracticeCheckIn';
+import AudioPlayer from '../components/AudioPlayer';
 
 function AnimatedBackground({ theme }) {
   const canvasRef = useRef(null);
@@ -278,6 +279,15 @@ function PracticeView({ affirmation, theme }) {
               </svg>
             </button>
           )}
+        </div>
+
+        {/* Audio Player */}
+        <div className="w-full max-w-lg">
+          <AudioPlayer
+            statements={statements}
+            activeIndex={activeIndex}
+            onIndexChange={setActiveIndex}
+          />
         </div>
       </div>
     </div>
