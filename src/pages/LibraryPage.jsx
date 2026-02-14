@@ -99,7 +99,7 @@ export default function LibraryPage() {
                         )}
                       </div>
                       {a.id === activeAffirmationId && (
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full gentle-pulse ${
                           theme === 'dark' ? 'bg-gold/20 text-gold' : 'bg-gold/20 text-gold-dark'
                         }`}>
                           Active

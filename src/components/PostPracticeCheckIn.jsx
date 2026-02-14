@@ -19,7 +19,7 @@ export default function PostPracticeCheckIn({ onComplete }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/30 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/30 backdrop-blur-sm page-transition">
       <div className={`w-full max-w-sm p-6 rounded-3xl ${
         theme === 'dark' ? 'bg-navy' : 'bg-cream'
       } shadow-xl`}>

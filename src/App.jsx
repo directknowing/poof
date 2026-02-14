@@ -8,7 +8,7 @@ import SettingsPage from './pages/SettingsPage';
 
 export default function App() {
   return (
-    <div className="font-sans">
+    <div className="font-sans transition-colors duration-300">
       <Routes>
         <Route path="/" element={<Navigate to="/practice" replace />} />
         <Route path="/practice" element={<PracticePage />} />

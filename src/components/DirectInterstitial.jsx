@@ -65,7 +65,7 @@ export default function DirectInterstitial({ onComplete }) {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-center px-6 ${
+    <div className={`min-h-screen flex flex-col items-center justify-center px-6 page-transition ${
       theme === 'dark' ? 'bg-navy text-soft-white' : 'bg-cream text-charcoal'
     }`}>
       <div className="max-w-md w-full">

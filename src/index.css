@@ -45,3 +45,43 @@ body {
 .dark ::-webkit-scrollbar-thumb {
   background: #252b52;
 }
+
+/* Page transition animation */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: page-enter 0.35s ease-out;
+}
+
+/* Subtle pulse for active practice indicator */
+@keyframes gentle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.gentle-pulse {
+  animation: gentle-pulse 2.5s ease-in-out infinite;
+}
+
+/* Improve touch targets for mobile */
+@media (max-width: 640px) {
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Safe area padding for notched devices */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

@@ -45,7 +45,7 @@ export default function BottomNav() {
   const { theme } = useTheme();
 
   return (
-    <nav className={`fixed bottom-0 left-0 right-0 z-50 border-t ${
+    <nav className={`fixed bottom-0 left-0 right-0 z-50 border-t transition-colors duration-300 ${
       theme === 'dark'
         ? 'bg-navy-dark/95 border-navy-light/30'
         : 'bg-cream/95 border-cream-dark'
