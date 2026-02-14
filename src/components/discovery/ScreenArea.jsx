@@ -16,6 +16,7 @@ export default function ScreenArea() {
     setCustomSubOption,
     confirmSubOptions,
     isLoading,
+    error,
   } = useDiscovery();
 
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -67,6 +68,25 @@ export default function ScreenArea() {
           </FadeIn>
         ))}
       </div>
+
+      {/* Loading state */}
+      {selectedArea && isLoading && subOptions.length === 0 && (
+        <FadeIn delay={100}>
+          <div className="flex items-center gap-3 px-4 py-3">
+            <div className="w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+            <p className={`text-sm ${
+              theme === 'dark' ? 'text-soft-white-dim' : 'text-charcoal-light'
+            }`}>Thinking about your situation...</p>
+          </div>
+        </FadeIn>
+      )}
+
+      {/* Error message */}
+      {error && (
+        <FadeIn delay={50}>
+          <p className="text-sm text-amber-600 dark:text-amber-400 px-4">{error}</p>
+        </FadeIn>
+      )}
 
       {/* Sub-options (appear after area selection) */}
       {selectedArea && subOptions.length > 0 && (

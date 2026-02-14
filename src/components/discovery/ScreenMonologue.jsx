@@ -11,6 +11,7 @@ export default function ScreenMonologue() {
     confirmMonologues,
     goBack,
     isLoading,
+    error,
   } = useDiscovery();
 
   const toggleMonologue = (m) => {
@@ -55,6 +56,13 @@ export default function ScreenMonologue() {
           </p>
         </div>
       </FadeIn>
+
+      {/* Error message */}
+      {error && (
+        <FadeIn delay={50}>
+          <p className="text-sm text-amber-600 dark:text-amber-400 px-1">{error}</p>
+        </FadeIn>
+      )}
 
       {/* Monologue cards */}
       <div className="space-y-2.5">

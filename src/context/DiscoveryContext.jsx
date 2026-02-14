@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
+import { useApp } from './AppContext';
+import { generateSubOptions, generateMonologues, generateIdentities } from '../utils/claude';
 
 const DiscoveryContext = createContext();
 
@@ -12,8 +14,8 @@ const LIFE_AREAS = [
   { id: 'creativity', label: 'Creativity & Expression', subtext: 'Your ability to make, share, and put yourself out there' },
 ];
 
-// Placeholder sub-options per area (will be replaced by API in Step 3)
-const PLACEHOLDER_SUB_OPTIONS = {
+// Fallback data when API key is not set
+const FALLBACK_SUB_OPTIONS = {
   'money-career': [
     "I'm stuck or plateaued",
     "I don't trust myself to make the right moves",
@@ -65,8 +67,7 @@ const PLACEHOLDER_SUB_OPTIONS = {
   ],
 };
 
-// Placeholder inner monologue (will be replaced by API in Step 3)
-const PLACEHOLDER_MONOLOGUES = {
+const FALLBACK_MONOLOGUES = {
   'money-career': [
     "I always second-guess myself and then the moment passes",
     "Other people seem to just know what to do — I'm always figuring it out",
@@ -118,8 +119,7 @@ const PLACEHOLDER_MONOLOGUES = {
   ],
 };
 
-// Placeholder identity statements (will be replaced by API in Step 3)
-const PLACEHOLDER_IDENTITIES = {
+const FALLBACK_IDENTITIES = {
   'money-career': [
     "Someone who backs themselves without needing a guarantee",
     "A person who moves decisively and trusts the process",
@@ -179,7 +179,8 @@ const PLACEHOLDER_IDENTITIES = {
 };
 
 export function DiscoveryProvider({ children }) {
-  const [currentStep, setCurrentStep] = useState(0); // 0=area, 1=monologue, 2=identity, 3=confirm
+  const { apiKey } = useApp();
+  const [currentStep, setCurrentStep] = useState(0);
   const [selectedArea, setSelectedArea] = useState(null);
   const [selectedSubOptions, setSelectedSubOptions] = useState([]);
   const [customSubOption, setCustomSubOption] = useState('');
@@ -190,34 +191,79 @@ export function DiscoveryProvider({ children }) {
   const [monologues, setMonologues] = useState([]);
   const [identities, setIdentities] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const selectArea = useCallback((area) => {
+  const selectArea = useCallback(async (area) => {
     setSelectedArea(area);
-    // Load placeholder sub-options
-    setSubOptions(PLACEHOLDER_SUB_OPTIONS[area.id] || []);
-  }, []);
+    setError(null);
 
-  const confirmSubOptions = useCallback(() => {
-    const areaId = selectedArea?.id;
-    if (!areaId) return;
-    // Load placeholder monologues
-    setMonologues(PLACEHOLDER_MONOLOGUES[areaId] || []);
+    if (apiKey) {
+      setIsLoading(true);
+      try {
+        const options = await generateSubOptions(apiKey, area);
+        setSubOptions(options);
+      } catch (e) {
+        console.error('API error, using fallbacks:', e);
+        setSubOptions(FALLBACK_SUB_OPTIONS[area.id] || []);
+        setError('API call failed — using suggested options instead.');
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setSubOptions(FALLBACK_SUB_OPTIONS[area.id] || []);
+    }
+  }, [apiKey]);
+
+  const confirmSubOptions = useCallback(async () => {
+    if (!selectedArea) return;
+    setError(null);
+
+    if (apiKey) {
+      setIsLoading(true);
+      try {
+        const results = await generateMonologues(apiKey, selectedArea, selectedSubOptions, customSubOption);
+        setMonologues(results);
+      } catch (e) {
+        console.error('API error, using fallbacks:', e);
+        setMonologues(FALLBACK_MONOLOGUES[selectedArea.id] || []);
+        setError('API call failed — using suggested patterns instead.');
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setMonologues(FALLBACK_MONOLOGUES[selectedArea.id] || []);
+    }
     setCurrentStep(1);
-  }, [selectedArea]);
+  }, [apiKey, selectedArea, selectedSubOptions, customSubOption]);
 
-  const confirmMonologues = useCallback(() => {
-    const areaId = selectedArea?.id;
-    if (!areaId) return;
-    // Load placeholder identities
-    setIdentities(PLACEHOLDER_IDENTITIES[areaId] || []);
+  const confirmMonologues = useCallback(async () => {
+    if (!selectedArea) return;
+    setError(null);
+
+    if (apiKey) {
+      setIsLoading(true);
+      try {
+        const results = await generateIdentities(apiKey, selectedArea, selectedSubOptions, customSubOption, selectedMonologues);
+        setIdentities(results);
+      } catch (e) {
+        console.error('API error, using fallbacks:', e);
+        setIdentities(FALLBACK_IDENTITIES[selectedArea.id] || []);
+        setError('API call failed — using suggested identities instead.');
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setIdentities(FALLBACK_IDENTITIES[selectedArea.id] || []);
+    }
     setCurrentStep(2);
-  }, [selectedArea]);
+  }, [apiKey, selectedArea, selectedSubOptions, customSubOption, selectedMonologues]);
 
   const confirmIdentities = useCallback(() => {
     setCurrentStep(3);
   }, []);
 
   const goBack = useCallback(() => {
+    setError(null);
     if (currentStep === 3) {
       setCurrentStep(2);
     } else if (currentStep === 2) {
@@ -244,6 +290,7 @@ export function DiscoveryProvider({ children }) {
     setMonologues([]);
     setIdentities([]);
     setIsLoading(false);
+    setError(null);
   }, []);
 
   const getSummary = useCallback(() => ({
@@ -285,6 +332,7 @@ export function DiscoveryProvider({ children }) {
       getSummary,
       isLoading,
       setIsLoading,
+      error,
       lifeAreas: LIFE_AREAS,
     }}>
       {children}
