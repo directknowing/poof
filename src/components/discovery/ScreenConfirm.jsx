@@ -1,19 +1,11 @@
-import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useDiscovery } from '../../context/DiscoveryContext';
 import FadeIn from '../FadeIn';
 
-export default function ScreenConfirm() {
+export default function ScreenConfirm({ onGenerate }) {
   const { theme } = useTheme();
-  const navigate = useNavigate();
   const { getSummary, goBack } = useDiscovery();
   const summary = getSummary();
-
-  const handleGenerate = () => {
-    // In Step 5, this will trigger affirmation generation.
-    // For now, navigate to practice as a placeholder.
-    navigate('/practice');
-  };
 
   return (
     <div className="space-y-6">
@@ -90,7 +82,7 @@ export default function ScreenConfirm() {
       <FadeIn delay={400}>
         <div className="space-y-3">
           <button
-            onClick={handleGenerate}
+            onClick={onGenerate}
             className={`w-full py-3.5 rounded-2xl font-medium text-sm transition-all duration-200 ${
               theme === 'dark'
                 ? 'bg-gold text-navy-dark hover:bg-gold-light'
